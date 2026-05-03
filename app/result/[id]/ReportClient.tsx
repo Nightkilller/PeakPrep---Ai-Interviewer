@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Script from "next/script";
 import Link from "next/link";
 import dayjs from "dayjs";
+import DownloadReportButton from "@/components/DownloadReportButton";
 
 function getScoreColorMapping(score: number) {
   if (score >= 90) return { bg: '#EAF3DE', text: '#27500A', label: 'Excellent', bar: '#639922' };
@@ -30,9 +31,11 @@ function animateCounter(el: HTMLElement, target: number, duration: number = 1000
   }, 16);
 }
 
-export default function ReportClient({ data, assessment }: { data: any, assessment: any }) {
+export default function ReportClient({ sessionId, data, initialAssessment }: { sessionId: string, data: any, initialAssessment: any }) {
   const [chartsLoaded, setChartsLoaded] = useState(false);
   const [shareLabel, setShareLabel] = useState("Share Link");
+  const [assessment, setAssessment] = useState<any>(initialAssessment);
+  const [isPolling, setIsPolling] = useState(!initialAssessment);
   
   const scoreCounterRef = useRef<HTMLSpanElement>(null);
   const donutChartRef = useRef<HTMLCanvasElement>(null);
@@ -44,6 +47,26 @@ export default function ReportClient({ data, assessment }: { data: any, assessme
 
   const scoreMap = getScoreColorMapping(assessment?.overallScore || 0);
   const donutColor = getGradeDonutColor(assessment?.grade || 'C');
+
+  useEffect(() => {
+    if (!isPolling) return;
+    
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/poll-report?id=${sessionId}`);
+        const result = await res.json();
+        if (result.ready && result.assessment) {
+          setAssessment(result.assessment);
+          setIsPolling(false);
+          clearInterval(interval);
+        }
+      } catch (e) {
+        console.error("Polling failed", e);
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [isPolling, sessionId]);
 
   useEffect(() => {
     if (scoreCounterRef.current && assessment?.overallScore) {
@@ -188,11 +211,46 @@ export default function ReportClient({ data, assessment }: { data: any, assessme
     }
   }, [chartsLoaded, assessment, donutColor]);
 
-  if (!assessment) return null;
+  if (!assessment) {
+    return (
+      <div className="min-h-screen bg-[#f5f0e8] grid-bg noise-bg flex flex-col items-center justify-center p-6 text-center">
+        <div className="bg-white p-10 rounded-2xl shadow-xl max-w-md w-full border border-gray-100 flex flex-col items-center">
+          <div className="relative w-20 h-20 mb-8">
+            <div className="absolute inset-0 border-4 border-[#16a34a]/20 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-[#16a34a] rounded-full border-t-transparent animate-spin"></div>
+            <svg className="absolute inset-0 m-auto w-8 h-8 text-[#16a34a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-black text-[#1a1a1a] mb-3">AI is analyzing your interview</h2>
+          <p className="text-gray-500 mb-8 leading-relaxed text-sm">
+            Our models are evaluating your communication, technical accuracy, and code quality. This usually takes about 10-15 seconds.
+          </p>
+          <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+            <div className="bg-[#16a34a] h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const handleDownload = () => {
-    document.title = `InterviewOS Report - ${assessment.candidateName} - ${dayjs().format('YYYY-MM-DD')}`;
-    window.print();
+  const reportData = {
+    score: assessment.overallScore,
+    grade: assessment.grade,
+    gradeLabel: getScoreColorMapping(assessment.overallScore).label,
+    feedback: assessment.verdictSummary,
+    strengths: assessment.strengths,
+    areasForImprovement: assessment.areasForImprovement,
+    questionBreakdown: assessment.questionBreakdown?.map((q: any) => ({
+      question: q.questionText,
+      score: q.score,
+      level: q.level,
+      feedback: q.feedback
+    })),
+    position: data?.position,
+    interviewType: data?.interviewType,
+    completedAt: assessment.generatedAt || data?.completedAt,
+    candidateName: assessment.candidateName
   };
 
   const handleShare = async () => {
@@ -239,9 +297,7 @@ export default function ReportClient({ data, assessment }: { data: any, assessme
             <button onClick={handleShare} className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md hover:bg-gray-50 transition">
               {shareLabel}
             </button>
-            <button onClick={handleDownload} className="px-4 py-2 text-sm font-medium bg-[#111827] text-white rounded-md hover:bg-black transition">
-              Download PDF
-            </button>
+            <DownloadReportButton reportData={reportData} />
           </div>
         </div>
 
@@ -599,10 +655,12 @@ export default function ReportClient({ data, assessment }: { data: any, assessme
           {/* 14. Footer */}
           <footer className="text-center pt-8 border-t border-gray-200">
             <p className="text-sm text-gray-500 font-medium mb-4">InterviewOS — Practice Like It's Real</p>
-            <div className="flex justify-center gap-4 no-print">
+            <div className="flex justify-center gap-4 no-print items-center">
               <button onClick={handleShare} className="text-gray-600 hover:text-gray-900 font-medium text-sm transition">Share Report</button>
               <span className="text-gray-300">|</span>
-              <button onClick={handleDownload} className="text-gray-600 hover:text-gray-900 font-medium text-sm transition">Save as PDF</button>
+              <div className="scale-[0.8] origin-left">
+                <DownloadReportButton reportData={reportData} />
+              </div>
             </div>
           </footer>
         </main>
