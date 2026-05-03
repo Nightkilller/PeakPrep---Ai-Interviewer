@@ -37,6 +37,7 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
   const [shareLabel, setShareLabel] = useState("Share Link");
   const [assessment, setAssessment] = useState<any>(initialAssessment);
   const [isPolling, setIsPolling] = useState(!initialAssessment);
+  const [error, setError] = useState<string | null>(null);
   
   const scoreCounterRef = useRef<HTMLSpanElement>(null);
   const donutChartRef = useRef<HTMLCanvasElement>(null);
@@ -57,12 +58,22 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
     // Call the server action directly to generate the report
     generateAssessmentAction(sessionId)
       .then((result) => {
-        if (isMounted && result) {
-          setAssessment(result);
+        if (isMounted) {
+          if (result) {
+            setAssessment(result);
+          } else {
+            setError("Failed to generate report. This usually happens if the interview was too short (no transcript) or if there was an issue with the AI API.");
+          }
           setIsPolling(false);
         }
       })
-      .catch((e) => console.error("Generation failed", e));
+      .catch((e) => {
+        if (isMounted) {
+          console.error("Generation failed", e);
+          setError("An error occurred while generating the report.");
+          setIsPolling(false);
+        }
+      });
 
     return () => { isMounted = false; };
   }, [isPolling, sessionId]);
@@ -209,6 +220,27 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
       });
     }
   }, [chartsLoaded, assessment, donutColor]);
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#f5f0e8] grid-bg noise-bg flex flex-col items-center justify-center p-6 text-center">
+        <div className="bg-white p-10 rounded-2xl shadow-xl max-w-md w-full border border-red-100 flex flex-col items-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
+            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-black text-[#1a1a1a] mb-3">Report Failed</h2>
+          <p className="text-gray-500 mb-8 leading-relaxed text-sm">
+            {error}
+          </p>
+          <Link href="/" className="px-6 py-3 bg-[#1a1a1a] text-white font-bold rounded-lg hover:bg-black transition-colors w-full">
+            Return Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (!assessment) {
     return (

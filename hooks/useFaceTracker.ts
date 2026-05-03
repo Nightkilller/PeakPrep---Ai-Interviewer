@@ -68,7 +68,17 @@ export function useFaceTracker(videoElement: HTMLVideoElement | null, isActive: 
       if (videoElement.currentTime !== lastVideoTime && faceLandmarkerRef.current) {
         lastVideoTime = videoElement.currentTime;
         try {
+          // MediaPipe logs INFO messages to console.error, which crashes Next.js dev overlay.
+          // Temporarily suppress it.
+          const originalError = console.error;
+          console.error = (...args: any[]) => {
+            if (typeof args[0] === 'string' && args[0].includes('XNNPACK')) return;
+            originalError.apply(console, args);
+          };
+          
           const results = faceLandmarkerRef.current.detectForVideo(videoElement, performance.now());
+          
+          console.error = originalError;
           
           if (results.faceLandmarks && results.faceLandmarks.length > 0) {
             const landmarks = results.faceLandmarks[0];
