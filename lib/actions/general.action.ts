@@ -89,45 +89,58 @@ export async function saveTranscription(
   codeExecuted?: boolean,
   codeCorrect?: boolean
 ) {
-  let assessment = null;
-  try {
-    if (transcript && transcript.length > 0) {
-      assessment = await analyzeTranscript(
-        sessionId,
-        transcript,
-        setupContext,
-        proctoringLog,
-        submittedCode,
-        codeExecuted,
-        codeCorrect
-      );
-    }
-  } catch (error) {
-    console.error("Failed to analyze transcript:", error);
-  }
-
-  // Update readiness score if we have an assessment
-  if (assessment?.overallScore) {
-    try {
-      const { userId } = await auth();
-      await updateReadinessScore(userId || "guest", sessionId, assessment.overallScore);
-    } catch (err) {
-      console.error("Failed to update readiness score:", err);
-    }
-  }
-
+  // Only save the raw data. Do NOT analyze here to prevent timeouts on navigation.
   await db.collection("sessions").doc(sessionId).update({
     transcript,
-    assessment,
-    weakTopics: assessment?.weakTopics || [],
     proctoringLog: proctoringLog || [],
     bodyLanguageScore: bodyLanguageScore || 0,
     submittedCode: submittedCode || "",
     codeExecuted: codeExecuted || false,
     codeCorrect: codeCorrect || false,
-    isCompleted: true,
-    completedAt: new Date().toISOString(),
+    setupContext: setupContext || null,
   });
+}
+
+export async function generateAssessmentAction(sessionId: string) {
+  try {
+    const sessionDoc = await db.collection("sessions").doc(sessionId).get();
+    if (!sessionDoc.exists) return null;
+    const sessionData = sessionDoc.data();
+
+    if (sessionData?.assessment) return sessionData.assessment; // Already generated
+    if (!sessionData?.transcript || sessionData.transcript.length === 0) return null;
+
+    const assessment = await analyzeTranscript(
+      sessionId,
+      sessionData.transcript,
+      sessionData.setupContext,
+      sessionData.proctoringLog,
+      sessionData.submittedCode,
+      sessionData.codeExecuted,
+      sessionData.codeCorrect
+    );
+
+    if (assessment?.overallScore) {
+      try {
+        const { userId } = await auth();
+        await updateReadinessScore(userId || "guest", sessionId, assessment.overallScore);
+      } catch (err) {
+        console.error("Failed to update readiness score:", err);
+      }
+    }
+
+    await db.collection("sessions").doc(sessionId).update({
+      assessment,
+      weakTopics: assessment?.weakTopics || [],
+      isCompleted: true,
+      completedAt: new Date().toISOString(),
+    });
+
+    return assessment;
+  } catch (error) {
+    console.error("Error generating assessment:", error);
+    return null;
+  }
 }
 
 const GROQ_SYSTEM_PROMPT = `

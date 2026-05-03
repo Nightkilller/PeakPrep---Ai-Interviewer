@@ -67,41 +67,43 @@ export function useFaceTracker(videoElement: HTMLVideoElement | null, isActive: 
 
       if (videoElement.currentTime !== lastVideoTime && faceLandmarkerRef.current) {
         lastVideoTime = videoElement.currentTime;
-        const results = faceLandmarkerRef.current.detectForVideo(videoElement, performance.now());
-        
-        if (results.faceLandmarks && results.faceLandmarks.length > 0) {
-          const landmarks = results.faceLandmarks[0];
+        try {
+          const results = faceLandmarkerRef.current.detectForVideo(videoElement, performance.now());
           
-          // Basic posture/eye contact check
-          // Nose tip is landmark 1
-          // Left eye is ~33, Right eye is ~263
-          const nose = landmarks[1];
-          const leftEye = landmarks[33];
-          const rightEye = landmarks[263];
-          
-          // Calculate center of eyes
-          const eyeCenterX = (leftEye.x + rightEye.x) / 2;
-          
-          // Check if nose is relatively centered between eyes (looking forward)
-          const lookingForward = Math.abs(nose.x - eyeCenterX) < 0.05;
-          
-          totalFrames.current += 1;
-          if (lookingForward) {
-            goodFrames.current += 1;
+          if (results.faceLandmarks && results.faceLandmarks.length > 0) {
+            const landmarks = results.faceLandmarks[0];
+            
+            // Basic posture/eye contact check
+            const nose = landmarks[1];
+            const leftEye = landmarks[33];
+            const rightEye = landmarks[263];
+            
+            // Calculate center of eyes
+            const eyeCenterX = (leftEye.x + rightEye.x) / 2;
+            
+            // Check if nose is relatively centered between eyes (looking forward)
+            const lookingForward = Math.abs(nose.x - eyeCenterX) < 0.05;
+            
+            totalFrames.current += 1;
+            if (lookingForward) {
+              goodFrames.current += 1;
+            }
+            
+            // Update score periodically to avoid too many re-renders
+            if (totalFrames.current % 30 === 0) {
+              const score = Math.round((goodFrames.current / totalFrames.current) * 100);
+              setBodyLanguageScore(score);
+            }
+          } else {
+            // No face detected -> bad frame
+            totalFrames.current += 1;
+            if (totalFrames.current % 30 === 0) {
+              const score = Math.round((goodFrames.current / totalFrames.current) * 100);
+              setBodyLanguageScore(score);
+            }
           }
-          
-          // Update score periodically to avoid too many re-renders
-          if (totalFrames.current % 30 === 0) {
-            const score = Math.round((goodFrames.current / totalFrames.current) * 100);
-            setBodyLanguageScore(score);
-          }
-        } else {
-          // No face detected -> bad frame
-          totalFrames.current += 1;
-          if (totalFrames.current % 30 === 0) {
-            const score = Math.round((goodFrames.current / totalFrames.current) * 100);
-            setBodyLanguageScore(score);
-          }
+        } catch (e) {
+          // Ignore transient errors if video isn't ready
         }
       }
       

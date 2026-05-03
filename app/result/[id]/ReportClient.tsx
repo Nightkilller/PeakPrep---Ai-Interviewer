@@ -5,6 +5,7 @@ import Script from "next/script";
 import Link from "next/link";
 import dayjs from "dayjs";
 import DownloadReportButton from "@/components/DownloadReportButton";
+import { generateAssessmentAction } from "@/lib/actions/general.action";
 
 function getScoreColorMapping(score: number) {
   if (score >= 90) return { bg: '#EAF3DE', text: '#27500A', label: 'Excellent', bar: '#639922' };
@@ -51,21 +52,19 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
   useEffect(() => {
     if (!isPolling) return;
     
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch(`/api/poll-report?id=${sessionId}`);
-        const result = await res.json();
-        if (result.ready && result.assessment) {
-          setAssessment(result.assessment);
+    let isMounted = true;
+    
+    // Call the server action directly to generate the report
+    generateAssessmentAction(sessionId)
+      .then((result) => {
+        if (isMounted && result) {
+          setAssessment(result);
           setIsPolling(false);
-          clearInterval(interval);
         }
-      } catch (e) {
-        console.error("Polling failed", e);
-      }
-    }, 4000);
+      })
+      .catch((e) => console.error("Generation failed", e));
 
-    return () => clearInterval(interval);
+    return () => { isMounted = false; };
   }, [isPolling, sessionId]);
 
   useEffect(() => {

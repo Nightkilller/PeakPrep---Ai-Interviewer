@@ -374,8 +374,7 @@ const VoiceInterviewer = ({
     if (mode === "interview" && sessionId) {
       try {
         if (currentDialog.length > 0) {
-          // Fire and forget so we can navigate immediately to the polling screen
-          saveTranscription(
+          await saveTranscription(
             sessionId,
             currentDialog,
             setupContext,
@@ -384,7 +383,7 @@ const VoiceInterviewer = ({
             codeState.code,
             codeState.executed,
             codeState.correct
-          ).catch(e => console.error("Background transcription error:", e));
+          );
         }
       } catch (error) {
         console.error("Failed to save transcription:", error);
