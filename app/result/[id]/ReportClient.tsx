@@ -5,6 +5,7 @@ import Script from "next/script";
 import Link from "next/link";
 import dayjs from "dayjs";
 import DownloadReportButton from "@/components/DownloadReportButton";
+import Logo from "@/components/Logo";
 
 function getScoreColorMapping(score: number) {
   if (score >= 90) return { bg: '#EAF3DE', text: '#27500A', label: 'Excellent', bar: '#639922' };
@@ -289,10 +290,10 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
 
   const handleShare = async () => {
     const url = window.location.href;
-    const summary = `I scored ${assessment.overallScore}/100 (Grade ${assessment.grade}) on my ${assessment.nextRecommendation?.suggestedMode || 'interview'} mock interview on InterviewOS! Check it out: ${url}`;
+    const summary = `I scored ${assessment.overallScore}/100 (Grade ${assessment.grade}) on my ${assessment.nextRecommendation?.suggestedMode || 'interview'} mock interview on PeakPrep! Check it out: ${url}`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: 'My InterviewOS Result', text: summary, url });
+        await navigator.share({ title: 'My PeakPrep Result', text: summary, url });
       } else {
         await navigator.clipboard.writeText(url);
         setShareLabel('Copied!');
@@ -323,33 +324,39 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
         }
       `}} />
 
-      <div className="min-h-screen bg-white text-[#111827] font-sans pb-20">
+      <div className="min-h-screen bg-[#f5f0e8] noise-bg grid-bg text-[#1a1a1a] font-sans pb-20">
         {/* 1. Top Navigation Bar */}
-        <div className="sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between no-print shadow-sm">
-          <Link href="/" className="font-bold text-xl tracking-tight">InterviewOS</Link>
+        <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-[#1a1a1a]/10 px-6 py-4 flex items-center justify-between no-print shadow-sm">
+          <Link href="/" className="flex items-center gap-3">
+            <Logo className="w-8 h-8" />
+            <span className="font-bold text-xl tracking-tight text-[#1a1a1a]">PeakPrep</span>
+          </Link>
           <div className="flex items-center gap-3">
-            <button onClick={handleShare} className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md hover:bg-gray-50 transition">
+            <button onClick={handleShare} className="px-4 py-2 text-sm font-bold bg-white border border-[#1a1a1a]/15 rounded-lg text-[#1a1a1a] hover:bg-gray-50 transition-all shadow-sm">
               {shareLabel}
             </button>
             <DownloadReportButton reportData={reportData} />
           </div>
         </div>
 
-        <main className="max-w-5xl mx-auto px-6 py-10 space-y-12">
+        <main className="max-w-5xl mx-auto px-6 py-10 space-y-12 relative z-10">
           
           {/* 2. Report Header / Hero Section */}
-          <section className="flex flex-col md:flex-row gap-10 items-center md:items-start">
+          <section className="flex flex-col md:flex-row gap-10 items-center md:items-start bg-white rounded-2xl p-8 border border-[#1a1a1a]/10 shadow-sm shadow-[#1a1a1a]/5">
             <div className="relative w-48 h-48 flex-shrink-0">
               <canvas ref={donutChartRef}></canvas>
             </div>
             <div className="flex-1 space-y-4">
-              <h1 className="text-4xl font-bold">{assessment.candidateName}</h1>
-              <div className="flex flex-wrap gap-2 text-[11px] font-medium uppercase tracking-wider">
-                <span className="px-2.5 py-1 bg-gray-100 rounded-md text-gray-700">{data.position || 'Role Not Specified'}</span>
-                <span className="px-2.5 py-1 bg-gray-100 rounded-md text-gray-700">{data.interviewType || 'Interview Mode'}</span>
-                <span className="px-2.5 py-1 bg-gray-100 rounded-md text-gray-700">{dayjs(assessment.generatedAt || data.completedAt).format('DD MMM YYYY, HH:mm')}</span>
+              <div className="flex items-center gap-3 mb-2">
+                <span className="px-3 py-1 bg-[#16a34a]/10 text-[#16a34a] text-[10px] font-bold uppercase tracking-widest rounded-full border border-[#16a34a]/20">Official Assessment</span>
               </div>
-              <div className="pl-4 border-l-4 border-[#185FA5] text-gray-700 leading-relaxed italic">
+              <h1 className="text-4xl font-black text-[#1a1a1a] tracking-tight">{assessment.candidateName}</h1>
+              <div className="flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-widest text-[#6b6b6b]">
+                <span className="px-3 py-1.5 bg-[#f5f0e8] rounded-lg border border-[#1a1a1a]/5">{data.position || 'Role Not Specified'}</span>
+                <span className="px-3 py-1.5 bg-[#f5f0e8] rounded-lg border border-[#1a1a1a]/5">{data.interviewType || 'Interview Mode'}</span>
+                <span className="px-3 py-1.5 bg-[#f5f0e8] rounded-lg border border-[#1a1a1a]/5 text-[#16a34a]">{dayjs(assessment.generatedAt || data.completedAt).format('DD MMM YYYY, HH:mm')}</span>
+              </div>
+              <div className="pl-6 border-l-4 border-[#16a34a] text-[#1a1a1a] leading-relaxed font-medium bg-[#f5f0e8]/30 py-4 pr-4 rounded-r-xl">
                 {assessment.verdictSummary}
               </div>
             </div>
@@ -357,35 +364,37 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
 
           {/* 2.5. Readiness Score */}
           {assessment.readinessRating != null && (
-            <section className="card p-6 border rounded-xl bg-gradient-to-r from-[#111827] to-[#1e293b] text-white shadow-lg">
-              <div className="flex flex-col md:flex-row items-center gap-8">
+            <section className="bg-[#1a1a1a] rounded-2xl p-8 text-white shadow-xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#16a34a]/20 blur-[100px] rounded-full -mr-32 -mt-32 transition-all group-hover:bg-[#16a34a]/30"></div>
+              <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
                 <div className="text-center">
-                  <p className="text-xs uppercase tracking-widest text-gray-400 mb-2">Interview Readiness</p>
-                  <div className={`inline-flex items-center justify-center w-28 h-28 rounded-full ring-4 ${(assessment.readinessRating * 10) >= 800 ? 'ring-blue-500/30' : (assessment.readinessRating * 10) >= 600 ? 'ring-green-500/30' : (assessment.readinessRating * 10) >= 400 ? 'ring-amber-500/30' : 'ring-red-500/30'}`}>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#999] mb-4 font-bold font-mono-accent">Interview Readiness</p>
+                  <div className={`relative inline-flex items-center justify-center w-32 h-32 rounded-full border-4 border-[#1a1a1a] shadow-[0_0_20px_rgba(22,163,74,0.2)] ${(assessment.readinessRating * 10) >= 800 ? 'bg-[#16a34a]/10' : (assessment.readinessRating * 10) >= 600 ? 'bg-blue-500/10' : (assessment.readinessRating * 10) >= 400 ? 'bg-amber-500/10' : 'bg-red-500/10'}`}>
+                    <div className="absolute inset-0 rounded-full border-4 border-white/5 animate-pulse"></div>
                     <div className="text-center">
-                      <p className="text-3xl font-black">{Math.round(assessment.readinessRating * 10)}</p>
-                      <p className="text-xs text-gray-400">/ 1000</p>
+                      <p className="text-4xl font-black tracking-tight">{Math.round(assessment.readinessRating * 10)}</p>
+                      <p className="text-[10px] text-[#999] font-bold uppercase tracking-widest mt-1">/ 1000</p>
                     </div>
                   </div>
                 </div>
-                <div className="flex-1 space-y-3 w-full">
-                  <p className="text-sm text-gray-300 mb-3">Your readiness level across company tiers:</p>
+                <div className="flex-1 space-y-6 w-full">
+                  <p className="text-sm text-[#999] mb-4 font-mono-accent">Your readiness level across company tiers:</p>
                   {[
-                    { label: "Service Tier (TCS, Infosys)", threshold: 400, color: "bg-emerald-400" },
-                    { label: "Product Tier (Flipkart, Paytm)", threshold: 600, color: "bg-blue-400" },
-                    { label: "FAANG Tier (Google, Amazon)", threshold: 750, color: "bg-purple-400" },
+                    { label: "Service Tier (TCS, Infosys)", threshold: 400, color: "bg-[#16a34a]" },
+                    { label: "Product Tier (Flipkart, Paytm)", threshold: 600, color: "bg-blue-500" },
+                    { label: "FAANG Tier (Google, Amazon)", threshold: 750, color: "bg-purple-500" },
                   ].map((tier, i) => {
                     const score = Math.round(assessment.readinessRating * 10);
                     const progress = Math.min(100, (score / tier.threshold) * 100);
                     const ready = score >= tier.threshold;
                     return (
-                      <div key={i}>
-                        <div className="flex justify-between text-xs mb-1">
-                          <span className="text-gray-400">{tier.label}</span>
-                          <span className={ready ? 'text-green-400 font-bold' : 'text-gray-500'}>{ready ? '✓ Ready' : `${tier.threshold - score} pts needed`}</span>
+                      <div key={i} className="space-y-2">
+                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-1">
+                          <span className="text-[#999]">{tier.label}</span>
+                          <span className={ready ? 'text-[#16a34a]' : 'text-[#6b6b6b]'}>{ready ? '✓ Certified Ready' : `${tier.threshold - score} pts needed`}</span>
                         </div>
-                        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full transition-all duration-1000 ${tier.color}`} style={{ width: `${progress}%` }}></div>
+                        <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden border border-white/5 p-0.5">
+                          <div className={`h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(22,163,74,0.3)] ${tier.color}`} style={{ width: `${progress}%` }}></div>
                         </div>
                       </div>
                     );
@@ -396,26 +405,26 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
           )}
 
           {/* 3. Key Metrics Bar */}
-          <section className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-gray-50 p-6 rounded-xl card border">
+          <section className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white p-8 rounded-2xl border border-[#1a1a1a]/10 shadow-sm shadow-[#1a1a1a]/5">
             <div className="space-y-1">
-              <p className="text-xs text-gray-500 uppercase font-semibold">Overall Score</p>
-              <p className="text-3xl font-bold" style={{ color: donutColor }}>
-                <span ref={scoreCounterRef}>0</span><span className="text-xl">/100</span>
+              <p className="text-[10px] text-[#999] uppercase font-black tracking-widest">Overall Score</p>
+              <p className="text-4xl font-black tracking-tight" style={{ color: donutColor }}>
+                <span ref={scoreCounterRef}>0</span><span className="text-xl text-[#999]">/100</span>
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-xs text-gray-500 uppercase font-semibold">Questions Answered</p>
-              <p className="text-3xl font-bold text-gray-900">{assessment.questionsAnswered} <span className="text-xl text-gray-400">/ {assessment.totalQuestions}</span></p>
+              <p className="text-[10px] text-[#999] uppercase font-black tracking-widest">Questions</p>
+              <p className="text-4xl font-black text-[#1a1a1a] tracking-tight">{assessment.questionsAnswered} <span className="text-xl text-[#999]">/ {assessment.totalQuestions}</span></p>
             </div>
             <div className="space-y-1">
-              <p className="text-xs text-gray-500 uppercase font-semibold">Violations</p>
-              <p className={`text-3xl font-bold ${(assessment.proctoringReport?.totalViolations || 0) > 0 ? 'text-[#E24B4A]' : 'text-[#639922]'}`}>
+              <p className="text-[10px] text-[#999] uppercase font-black tracking-widest">Violations</p>
+              <p className={`text-4xl font-black tracking-tight ${(assessment.proctoringReport?.totalViolations || 0) > 0 ? 'text-red-500' : 'text-[#16a34a]'}`}>
                 {assessment.proctoringReport?.totalViolations || 0}
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-xs text-gray-500 uppercase font-semibold">Duration</p>
-              <p className="text-3xl font-bold text-gray-900">{assessment.interviewDuration || 0} <span className="text-xl text-gray-400">min</span></p>
+              <p className="text-[10px] text-[#999] uppercase font-black tracking-widest">Duration</p>
+              <p className="text-4xl font-black text-[#1a1a1a] tracking-tight">{assessment.interviewDuration || 0} <span className="text-xl text-[#999]">min</span></p>
             </div>
           </section>
 
@@ -687,8 +696,8 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
           )}
 
           {/* 14. Footer */}
-          <footer className="text-center pt-8 border-t border-gray-200">
-            <p className="text-sm text-gray-500 font-medium mb-4">InterviewOS — Practice Like It's Real</p>
+          <footer className="text-center pt-8 border-t border-[#1a1a1a]/10">
+            <p className="text-sm text-[#999] font-bold uppercase tracking-[0.2em] mb-4">PeakPrep — Practice Like It's Real</p>
             <div className="flex justify-center gap-4 no-print items-center">
               <button onClick={handleShare} className="text-gray-600 hover:text-gray-900 font-medium text-sm transition">Share Report</button>
               <span className="text-gray-300">|</span>
