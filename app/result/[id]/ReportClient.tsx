@@ -5,7 +5,6 @@ import Script from "next/script";
 import Link from "next/link";
 import dayjs from "dayjs";
 import DownloadReportButton from "@/components/DownloadReportButton";
-import { generateAssessmentAction } from "@/lib/actions/general.action";
 
 function getScoreColorMapping(score: number) {
   if (score >= 90) return { bg: '#EAF3DE', text: '#27500A', label: 'Excellent', bar: '#639922' };
@@ -54,25 +53,29 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
     if (!isPolling) return;
     
     let isMounted = true;
-    
-    // Call the server action directly to generate the report
-    generateAssessmentAction(sessionId)
-      .then((result) => {
-        if (isMounted) {
-          if (result) {
-            setAssessment(result);
-          } else {
-            setError("Failed to generate report. This usually happens if the interview was too short (no transcript) or if there was an issue with the AI API.");
-          }
+
+    // Call the dedicated API route — much more reliable than a Server Action
+    fetch("/api/generate-report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!isMounted) return;
+        if (data.assessment) {
+          setAssessment(data.assessment);
+          setIsPolling(false);
+        } else {
+          setError(data.error || "Failed to generate report. Make sure you spoke at least a few sentences during the interview.");
           setIsPolling(false);
         }
       })
       .catch((e) => {
-        if (isMounted) {
-          console.error("Generation failed", e);
-          setError("An error occurred while generating the report.");
-          setIsPolling(false);
-        }
+        if (!isMounted) return;
+        console.error("Report generation failed:", e);
+        setError("Network error — could not reach the report generation API.");
+        setIsPolling(false);
       });
 
     return () => { isMounted = false; };

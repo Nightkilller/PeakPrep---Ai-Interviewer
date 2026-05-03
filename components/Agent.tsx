@@ -44,6 +44,8 @@ const VoiceInterviewer = ({
   const [connectionState, setConnectionState] = useState<ConnectionState>(ConnectionState.IDLE);
   const [dialogHistory, setDialogHistory] = useState<DialogEntry[]>([]);
   const dialogHistoryRef = useRef<DialogEntry[]>([]);
+  // Also capture the full conversation from VAPI's conversation-update event as a backup
+  const conversationUpdateRef = useRef<DialogEntry[]>([]);
   const [agentSpeaking, setAgentSpeaking] = useState(false);
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const [userTranscript, setUserTranscript] = useState<string>("");
@@ -105,6 +107,16 @@ const VoiceInterviewer = ({
             const dialogEntry = { role: msg.role, content: msg.transcript };
             setDialogHistory((previous) => [...previous, dialogEntry]);
           }
+        }
+      }
+      // conversation-update gives us the full, final transcript — use it as source of truth
+      if (msg.type === "conversation-update" && (msg as any).conversation) {
+        const fullConversation = (msg as any).conversation
+          .filter((m: any) => m.role === "user" || m.role === "assistant")
+          .map((m: any) => ({ role: m.role, content: m.content || "" }))
+          .filter((m: any) => m.content.trim() !== "");
+        if (fullConversation.length > 0) {
+          conversationUpdateRef.current = fullConversation;
         }
       }
     };
@@ -369,8 +381,11 @@ const VoiceInterviewer = ({
       streamRef.current = null;
     }
 
-    // Save transcription to Firestore and THEN navigate to result
-    const currentDialog = dialogHistoryRef.current;
+    // Use conversationUpdateRef (full VAPI transcript) if available; fall back to dialogHistoryRef
+    const currentDialog = conversationUpdateRef.current.length > 0
+      ? conversationUpdateRef.current
+      : dialogHistoryRef.current;
+    console.log(`[terminateConnection] transcript length: ${currentDialog.length}`);
     if (mode === "interview" && sessionId) {
       try {
         if (currentDialog.length > 0) {
@@ -384,6 +399,9 @@ const VoiceInterviewer = ({
             codeState.executed,
             codeState.correct
           );
+          console.log("[terminateConnection] transcript saved successfully");
+        } else {
+          console.warn("[terminateConnection] No transcript to save — did VAPI capture any speech?");
         }
       } catch (error) {
         console.error("Failed to save transcription:", error);

@@ -307,20 +307,44 @@ async function analyzeTranscript(
     .replace('{{codeCorrect}}', codeCorrect ? 'Yes' : 'No');
 
   try {
-    const response = await groq.chat.completions.create({
-      messages: [
-        { role: 'system', content: GROQ_SYSTEM_PROMPT },
-        { role: 'user', content: userPrompt }
-      ],
-      model: 'llama-3.3-70b-versatile',
-      temperature: 0.2,
-      max_tokens: 4000,
-      response_format: { type: 'json_object' }
-    });
+    let content;
+    try {
+      // First attempt with the 70B versatile model
+      const response = await groq.chat.completions.create({
+        messages: [
+          { role: 'system', content: GROQ_SYSTEM_PROMPT },
+          { role: 'user', content: userPrompt }
+        ],
+        model: 'llama-3.3-70b-versatile',
+        temperature: 0.2,
+        max_tokens: 4000,
+        response_format: { type: 'json_object' }
+      });
+      content = response.choices[0]?.message?.content;
+    } catch (apiError: any) {
+      console.warn("Groq 70B failed, retrying with 8B instant...", apiError?.message);
+      // Fallback attempt with a faster, lower-tier model if rate limited or timed out
+      const fallbackResponse = await groq.chat.completions.create({
+        messages: [
+          { role: 'system', content: GROQ_SYSTEM_PROMPT },
+          { role: 'user', content: userPrompt }
+        ],
+        model: 'llama-3.1-8b-instant',
+        temperature: 0.2,
+        max_tokens: 4000,
+        response_format: { type: 'json_object' }
+      });
+      content = fallbackResponse.choices[0]?.message?.content;
+    }
 
-    const content = response.choices[0]?.message?.content;
     if (content) {
-      const assessment = JSON.parse(content);
+      let assessment;
+      try {
+        assessment = JSON.parse(content);
+      } catch (parseError) {
+        console.error("Failed to parse JSON from Groq:", content);
+        return null; // Bad JSON
+      }
       
       // Merge scoreHistory from previous sessions before saving
       const { userId } = await auth();
@@ -329,7 +353,7 @@ async function analyzeTranscript(
       
       assessment.scoreHistory = [
         ...previousSessions.map(s => ({ score: s.overallScore, date: s.completedAt })),
-        { score: assessment.overallScore, date: new Date().toISOString() }
+        { score: assessment.overallScore || 0, date: new Date().toISOString() }
       ];
       
       // Override candidate name and session id for correctness
@@ -339,9 +363,8 @@ async function analyzeTranscript(
       return assessment;
     }
     return null;
-  } catch (error) {
-    console.error("Error calling Groq API or parsing JSON:", error);
-    // Fallback logic could be implemented here
+  } catch (error: any) {
+    console.error("FATAL: Error calling Groq API or parsing JSON:", error?.message || error);
     return null;
   }
 }
