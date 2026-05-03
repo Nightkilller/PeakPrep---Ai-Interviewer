@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/firebase/admin";
 import Groq from "groq-sdk";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { updateReadinessScore, getPreviousScores } from "@/lib/actions/readiness.action";
+import { updateReadinessScore } from "@/lib/actions/readiness.action";
+import { getPreviousScores } from "@/lib/actions/general.action";
 
 const GROQ_SYSTEM_PROMPT = `
 You are an expert senior technical interviewer and performance analyst. You evaluate technical interview transcripts and return a comprehensive, honest, actionable performance report. You are direct, specific, and never vague. You always return valid JSON and nothing else — no markdown, no preamble, no explanation outside the JSON object.
