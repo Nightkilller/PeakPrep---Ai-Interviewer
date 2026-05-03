@@ -23,15 +23,17 @@ import {
     Video,
 } from "lucide-react";
 
+import { Globe, FileQuestion } from "lucide-react";
+
 const profilePlatforms = [
-    { value: "leetcode", label: "LeetCode", color: "#FFA116" },
-    { value: "codechef", label: "CodeChef", color: "#5B4638" },
-    { value: "codeforces", label: "Codeforces", color: "#1F8ACB" },
-    { value: "hackerrank", label: "HackerRank", color: "#2EC866" },
-    { value: "linkedin", label: "LinkedIn", color: "#0A66C2" },
-    { value: "github", label: "GitHub", color: "#1a1a1a" },
-    { value: "portfolio", label: "Portfolio", color: "#16a34a" },
-    { value: "other", label: "Other", color: "#6b6b6b" },
+    { value: "leetcode", label: "LeetCode", color: "#FFA116", iconUrl: "https://cdn.simpleicons.org/leetcode/FFA116" },
+    { value: "codechef", label: "CodeChef", color: "#5B4638", iconUrl: "https://cdn.simpleicons.org/codechef/5B4638" },
+    { value: "codeforces", label: "Codeforces", color: "#1F8ACB", iconUrl: "https://cdn.simpleicons.org/codeforces/1F8ACB" },
+    { value: "hackerrank", label: "HackerRank", color: "#2EC866", iconUrl: "https://cdn.simpleicons.org/hackerrank/2EC866" },
+    { value: "linkedin", label: "LinkedIn", color: "#0A66C2", iconUrl: "https://cdn.simpleicons.org/linkedin/0A66C2" },
+    { value: "github", label: "GitHub", color: "#1a1a1a", iconUrl: "https://cdn.simpleicons.org/github/1a1a1a" },
+    { value: "portfolio", label: "Portfolio", color: "#16a34a", isLucide: true, lucideIcon: Globe },
+    { value: "other", label: "Other", color: "#6b6b6b", isLucide: true, lucideIcon: FileQuestion },
 ];
 
 interface ProfileLink {
@@ -39,6 +41,9 @@ interface ProfileLink {
     label: string;
     color: string;
     url: string;
+    iconUrl?: string;
+    isLucide?: boolean;
+    lucideIcon?: any;
 }
 import Navbar from "@/components/Navbar";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -193,6 +198,9 @@ export default function SetupPage() {
                 label: platform.label,
                 color: platform.color,
                 url: profileUrl.trim(),
+                iconUrl: platform.iconUrl,
+                isLucide: platform.isLucide,
+                lucideIcon: platform.lucideIcon,
             },
         ]);
         setSelectedPlatform("");
@@ -787,10 +795,11 @@ export default function SetupPage() {
                                                     setPlatformDropdownOpen(false);
                                                 }}
                                             >
-                                                <span
-                                                    className="w-3 h-3 rounded-full"
-                                                    style={{ backgroundColor: platform.color }}
-                                                ></span>
+                                                {platform.isLucide && platform.lucideIcon ? (
+                                                    <platform.lucideIcon className="w-4 h-4 shrink-0" style={{ color: platform.color }} />
+                                                ) : (
+                                                    <img src={platform.iconUrl} alt={platform.label} className="w-4 h-4 shrink-0 object-contain" />
+                                                )}
                                                 {platform.label}
                                             </button>
                                         ))}
@@ -838,10 +847,11 @@ export default function SetupPage() {
                                         className="flex items-center justify-between p-3 bg-[#f5f0e8] rounded-lg border border-[#1a1a1a]/10 group"
                                     >
                                         <div className="flex items-center gap-3 min-w-0">
-                                            <span
-                                                className="w-3 h-3 rounded-full shrink-0"
-                                                style={{ backgroundColor: link.color }}
-                                            ></span>
+                                            {link.isLucide && link.lucideIcon ? (
+                                                <link.lucideIcon className="w-4 h-4 shrink-0" style={{ color: link.color }} />
+                                            ) : (
+                                                <img src={link.iconUrl} alt={link.label} className="w-4 h-4 shrink-0 object-contain" />
+                                            )}
                                             <span className="text-sm font-bold text-[#1a1a1a] shrink-0">
                                                 {link.label}
                                             </span>
