@@ -171,8 +171,4 @@ PeakPrep/
 
 This project is open source and available under the [MIT License](LICENSE).
 
----
 
-## 📧 Contact
-
-For inquiries, contact: enterprise@peakprep.ai
