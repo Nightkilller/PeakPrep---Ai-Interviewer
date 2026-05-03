@@ -1,6 +1,8 @@
 import { getExperiences, getUniqueCompanies } from "@/lib/actions/experience.action";
 import ExperienceListClient from "./ExperienceListClient";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Interview Experiences — Real Questions from Real Students | InterviewOS",
   description: "Crowdsourced interview experiences from TCS, Infosys, Amazon, Google, and more. Real questions asked in 2025-2026 campus placements.",

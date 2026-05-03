@@ -2,6 +2,7 @@ import { getExperienceById } from "@/lib/actions/experience.action";
 import ExperienceDetailClient from "./ExperienceDetailClient";
 import { RouteParams } from "@/app/types";
 
+export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: RouteParams) {
   const { id } = await params;
   const exp = await getExperienceById(id);

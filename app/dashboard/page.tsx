@@ -2,6 +2,7 @@ import { getReadinessScore } from "@/lib/actions/readiness.action";
 import { getWeaknessMap, generateStudyPlan, getCompletedSessionCount } from "@/lib/actions/weakness.action";
 import DashboardClient from "./DashboardClient";
 
+export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Dashboard — InterviewOS",
   description: "Your placement countdown, readiness score, and personalized study plan.",
