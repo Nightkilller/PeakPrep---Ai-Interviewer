@@ -364,21 +364,20 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
 
           {/* 2.5. Readiness Score */}
           {assessment.readinessRating != null && (
-            <section className="bg-[#1a1a1a] rounded-2xl p-8 text-white shadow-xl relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#16a34a]/20 blur-[100px] rounded-full -mr-32 -mt-32 transition-all group-hover:bg-[#16a34a]/30"></div>
+            <section className="bg-white rounded-2xl p-10 border border-[#1a1a1a]/10 shadow-sm shadow-[#1a1a1a]/5 relative overflow-hidden group transition-all hover:shadow-md">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#16a34a]/5 blur-[100px] rounded-full -mr-32 -mt-32 transition-all group-hover:bg-[#16a34a]/10"></div>
               <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
                 <div className="text-center">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#999] mb-4 font-bold font-mono-accent">Interview Readiness</p>
-                  <div className={`relative inline-flex items-center justify-center w-32 h-32 rounded-full border-4 border-[#1a1a1a] shadow-[0_0_20px_rgba(22,163,74,0.2)] ${(assessment.readinessRating * 10) >= 800 ? 'bg-[#16a34a]/10' : (assessment.readinessRating * 10) >= 600 ? 'bg-blue-500/10' : (assessment.readinessRating * 10) >= 400 ? 'bg-amber-500/10' : 'bg-red-500/10'}`}>
-                    <div className="absolute inset-0 rounded-full border-4 border-white/5 animate-pulse"></div>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#999] mb-4 font-black font-mono-accent">Interview Readiness</p>
+                  <div className={`relative inline-flex items-center justify-center w-36 h-36 rounded-full border-4 border-[#f5f0e8] shadow-sm ${(assessment.readinessRating * 10) >= 800 ? 'bg-[#16a34a]/5' : (assessment.readinessRating * 10) >= 600 ? 'bg-blue-500/5' : (assessment.readinessRating * 10) >= 400 ? 'bg-amber-500/5' : 'bg-red-500/5'}`}>
                     <div className="text-center">
-                      <p className="text-4xl font-black tracking-tight">{Math.round(assessment.readinessRating * 10)}</p>
+                      <p className="text-5xl font-black tracking-tight text-[#1a1a1a]">{Math.round(assessment.readinessRating * 10)}</p>
                       <p className="text-[10px] text-[#999] font-bold uppercase tracking-widest mt-1">/ 1000</p>
                     </div>
                   </div>
                 </div>
-                <div className="flex-1 space-y-6 w-full">
-                  <p className="text-sm text-[#999] mb-4 font-mono-accent">Your readiness level across company tiers:</p>
+                <div className="flex-1 space-y-8 w-full">
+                  <p className="text-sm text-[#6b6b6b] mb-4 font-bold font-mono-accent uppercase tracking-widest">Company Tier benchmarks:</p>
                   {[
                     { label: "Service Tier (TCS, Infosys)", threshold: 400, color: "bg-[#16a34a]" },
                     { label: "Product Tier (Flipkart, Paytm)", threshold: 600, color: "bg-blue-500" },
@@ -388,13 +387,13 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
                     const progress = Math.min(100, (score / tier.threshold) * 100);
                     const ready = score >= tier.threshold;
                     return (
-                      <div key={i} className="space-y-2">
-                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-1">
-                          <span className="text-[#999]">{tier.label}</span>
-                          <span className={ready ? 'text-[#16a34a]' : 'text-[#6b6b6b]'}>{ready ? '✓ Certified Ready' : `${tier.threshold - score} pts needed`}</span>
+                      <div key={i} className="space-y-3">
+                        <div className="flex justify-between text-[11px] font-black uppercase tracking-widest mb-1">
+                          <span className="text-[#1a1a1a]">{tier.label}</span>
+                          <span className={ready ? 'text-[#16a34a]' : 'text-[#999]'}>{ready ? '✓ Certified Ready' : `${tier.threshold - score} pts needed`}</span>
                         </div>
-                        <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden border border-white/5 p-0.5">
-                          <div className={`h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(22,163,74,0.3)] ${tier.color}`} style={{ width: `${progress}%` }}></div>
+                        <div className="w-full h-3 bg-[#f5f0e8] rounded-full overflow-hidden border border-[#1a1a1a]/5 p-0.5">
+                          <div className={`h-full rounded-full transition-all duration-1000 shadow-sm ${tier.color}`} style={{ width: `${progress}%` }}></div>
                         </div>
                       </div>
                     );
@@ -405,73 +404,86 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
           )}
 
           {/* 3. Key Metrics Bar */}
-          <section className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white p-8 rounded-2xl border border-[#1a1a1a]/10 shadow-sm shadow-[#1a1a1a]/5">
-            <div className="space-y-1">
-              <p className="text-[10px] text-[#999] uppercase font-black tracking-widest">Overall Score</p>
-              <p className="text-4xl font-black tracking-tight" style={{ color: donutColor }}>
+          <section className="grid grid-cols-2 md:grid-cols-4 gap-6 bg-white p-10 rounded-2xl border border-[#1a1a1a]/10 shadow-sm shadow-[#1a1a1a]/5 transition-all hover:shadow-md">
+            <div className="space-y-2">
+              <p className="text-[10px] text-[#999] uppercase font-black tracking-widest">Performance Score</p>
+              <p className="text-5xl font-black tracking-tight" style={{ color: donutColor }}>
                 <span ref={scoreCounterRef}>0</span><span className="text-xl text-[#999]">/100</span>
               </p>
             </div>
-            <div className="space-y-1">
-              <p className="text-[10px] text-[#999] uppercase font-black tracking-widest">Questions</p>
-              <p className="text-4xl font-black text-[#1a1a1a] tracking-tight">{assessment.questionsAnswered} <span className="text-xl text-[#999]">/ {assessment.totalQuestions}</span></p>
+            <div className="space-y-2">
+              <p className="text-[10px] text-[#999] uppercase font-black tracking-widest">Questions Hit</p>
+              <p className="text-5xl font-black text-[#1a1a1a] tracking-tight">{assessment.questionsAnswered} <span className="text-xl text-[#999]">/ {assessment.totalQuestions}</span></p>
             </div>
-            <div className="space-y-1">
-              <p className="text-[10px] text-[#999] uppercase font-black tracking-widest">Violations</p>
-              <p className={`text-4xl font-black tracking-tight ${(assessment.proctoringReport?.totalViolations || 0) > 0 ? 'text-red-500' : 'text-[#16a34a]'}`}>
+            <div className="space-y-2">
+              <p className="text-[10px] text-[#999] uppercase font-black tracking-widest">Safety Incidents</p>
+              <p className={`text-5xl font-black tracking-tight ${(assessment.proctoringReport?.totalViolations || 0) > 0 ? 'text-red-500' : 'text-[#16a34a]'}`}>
                 {assessment.proctoringReport?.totalViolations || 0}
               </p>
             </div>
-            <div className="space-y-1">
-              <p className="text-[10px] text-[#999] uppercase font-black tracking-widest">Duration</p>
-              <p className="text-4xl font-black text-[#1a1a1a] tracking-tight">{assessment.interviewDuration || 0} <span className="text-xl text-[#999]">min</span></p>
+            <div className="space-y-2">
+              <p className="text-[10px] text-[#999] uppercase font-black tracking-widest">Time Invested</p>
+              <p className="text-5xl font-black text-[#1a1a1a] tracking-tight">{assessment.interviewDuration || 0} <span className="text-xl text-[#999]">min</span></p>
             </div>
           </section>
 
           {/* 4. Category Scores */}
-          <section className="grid md:grid-cols-2 gap-10 card bg-white">
-            <div className="space-y-5">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-[#185FA5]"></span> Category Scores
-              </h3>
-              {assessment.categoryScores?.map((cat: any, i: number) => {
-                const map = getScoreColorMapping(cat.score);
-                return (
-                  <div key={i} className="space-y-1.5">
-                    <div className="flex justify-between items-end">
-                      <span className="text-sm font-medium">{cat.category}</span>
-                      <span className="text-xs px-2 py-0.5 rounded font-medium" style={{ backgroundColor: map.bg, color: map.text }}>{map.label} ({cat.score})</span>
+          <section className="bg-white rounded-2xl p-10 border border-[#1a1a1a]/10 shadow-sm shadow-[#1a1a1a]/5 grid md:grid-cols-2 gap-12 transition-all hover:shadow-md">
+            <div className="space-y-8">
+              <div className="flex items-center gap-3">
+                <span className="w-3 h-3 rounded-full bg-[#16a34a] shadow-[0_0_10px_rgba(22,163,74,0.4)]"></span>
+                <h3 className="text-xl font-black text-[#1a1a1a] tracking-tight">Core Competencies</h3>
+              </div>
+              <div className="space-y-6">
+                {assessment.categoryScores?.map((cat: any, i: number) => {
+                  const map = getScoreColorMapping(cat.score);
+                  return (
+                    <div key={i} className="space-y-2">
+                      <div className="flex justify-between items-end">
+                        <span className="text-[13px] font-bold text-[#1a1a1a] uppercase tracking-wider">{cat.category}</span>
+                        <span className="text-[10px] px-2.5 py-1 rounded-md font-black uppercase tracking-widest" style={{ backgroundColor: map.bg, color: map.text }}>{map.label} ({cat.score})</span>
+                      </div>
+                      <div className="w-full h-2.5 bg-[#f5f0e8] rounded-full overflow-hidden border border-[#1a1a1a]/5 p-0.5">
+                        <div className="bar-fill h-full rounded-full transition-all duration-1000 w-0 shadow-sm" style={{ backgroundColor: map.bar }} data-score={cat.score}></div>
+                      </div>
                     </div>
-                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="bar-fill h-full transition-all duration-1000 w-0" style={{ backgroundColor: map.bar }} data-score={cat.score}></div>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-            <div className="h-64 relative">
+            <div className="h-72 relative bg-[#f5f0e8]/30 rounded-2xl border border-[#1a1a1a]/5 p-6">
               <canvas ref={radarChartRef}></canvas>
             </div>
           </section>
 
           {/* 5. Strengths vs Improvements */}
-          <section className="grid md:grid-cols-2 gap-6 card">
-            <div className="bg-[#EAF3DE]/40 border border-[#639922]/20 rounded-xl p-6">
-              <h3 className="text-[#27500A] font-bold mb-4">Strengths</h3>
-              <ul className="space-y-3">
+          <section className="grid md:grid-cols-2 gap-8">
+            <div className="bg-white rounded-2xl p-8 border border-[#16a34a]/10 shadow-sm shadow-[#16a34a]/5 transition-all hover:shadow-md">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 bg-[#16a34a]/10 rounded-lg flex items-center justify-center">
+                  <span className="text-[#16a34a] font-black">✓</span>
+                </div>
+                <h3 className="text-lg font-black text-[#1a1a1a] tracking-tight">Key Strengths</h3>
+              </div>
+              <ul className="space-y-4">
                 {assessment.strengths?.map((s: string, i: number) => (
-                  <li key={i} className="flex gap-2 text-sm text-gray-800 leading-relaxed">
-                    <span className="text-[#639922] mt-0.5">✦</span> <span>{s}</span>
+                  <li key={i} className="flex gap-3 text-sm text-[#6b6b6b] leading-relaxed font-medium">
+                    <span className="text-[#16a34a] mt-0.5 text-xs">●</span> <span>{s}</span>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="bg-[#FAEEDA]/40 border border-[#BA7517]/20 rounded-xl p-6">
-              <h3 className="text-[#633806] font-bold mb-4">Areas to Improve</h3>
-              <ul className="space-y-3">
+            <div className="bg-white rounded-2xl p-8 border border-amber-500/10 shadow-sm shadow-amber-500/5 transition-all hover:shadow-md">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 bg-amber-500/10 rounded-lg flex items-center justify-center">
+                  <span className="text-amber-500 font-black">!</span>
+                </div>
+                <h3 className="text-lg font-black text-[#1a1a1a] tracking-tight">Critical Adjustments</h3>
+              </div>
+              <ul className="space-y-4">
                 {assessment.areasForImprovement?.map((a: string, i: number) => (
-                  <li key={i} className="flex gap-2 text-sm text-gray-800 leading-relaxed">
-                    <span className="text-[#BA7517] mt-0.5">!</span> <span>{a}</span>
+                  <li key={i} className="flex gap-3 text-sm text-[#6b6b6b] leading-relaxed font-medium">
+                    <span className="text-amber-500 mt-0.5 text-xs">●</span> <span>{a}</span>
                   </li>
                 ))}
               </ul>
@@ -481,20 +493,21 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
           <div className="page-break"></div>
 
           {/* 6. Score Trend Chart */}
-          <section className="card p-6 border rounded-xl bg-white">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-[#185FA5]"></span> Score Trend (Last 5 Interviews)
+          <section className="bg-white rounded-2xl p-10 border border-[#1a1a1a]/10 shadow-sm shadow-[#1a1a1a]/5 transition-all hover:shadow-md">
+            <h3 className="text-xl font-black mb-8 flex items-center gap-3">
+              <span className="w-3 h-3 rounded-full bg-[#185FA5]"></span> Performance Trajectory
             </h3>
-            <div className="w-full h-64">
+            <div className="w-full h-80 bg-[#f5f0e8]/30 rounded-2xl border border-[#1a1a1a]/5 p-6">
               <canvas ref={lineChartRef}></canvas>
             </div>
           </section>
 
           {/* 7. Question-by-question breakdown */}
-          <section className="space-y-4">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-[#185FA5]"></span> Question and Answer Breakdown
-            </h3>
+          <section className="space-y-6">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="w-3 h-3 rounded-full bg-[#16a34a]"></span>
+              <h3 className="text-xl font-black text-[#1a1a1a] tracking-tight">Question Analysis</h3>
+            </div>
             <div className="space-y-4">
               {assessment.questionBreakdown?.map((q: any, i: number) => {
                 const map = getScoreColorMapping(q.score);
@@ -536,19 +549,28 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
           <div className="page-break"></div>
 
           {/* 8. Communication Analysis */}
-          <section className="card p-6 border rounded-xl bg-white">
-            <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-[#E24B4A]"></span> Communication Analysis — Filler Words
+          <section className="bg-white rounded-2xl p-10 border border-[#1a1a1a]/10 shadow-sm shadow-[#1a1a1a]/5 transition-all hover:shadow-md">
+            <h3 className="text-xl font-black mb-8 flex items-center gap-3">
+              <span className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.4)]"></span> 
+              Communication Signals
             </h3>
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div className="space-y-6">
-                <div>
-                  <p className="text-sm text-gray-600 mb-2">Words per minute: <span className="font-bold text-gray-900">{assessment.communicationAnalysis?.wordsPerMinute}</span> (Target: {assessment.communicationAnalysis?.targetWpm})</p>
-                  <p className="text-sm text-gray-600 mb-2">Pace: <span className="font-medium text-gray-800">{assessment.communicationAnalysis?.paceFeedback}</span></p>
-                  <p className="text-sm text-gray-600">Total Filler Words: <span className="font-bold text-red-600">{assessment.communicationAnalysis?.totalFillerCount}</span></p>
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="space-y-8">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-[#999] uppercase font-black tracking-widest">Speaking Pace</p>
+                    <p className="text-2xl font-black text-[#1a1a1a]">{assessment.communicationAnalysis?.wordsPerMinute} <span className="text-xs text-[#999]">WPM</span></p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-[#999] uppercase font-black tracking-widest">Fillers Detected</p>
+                    <p className="text-2xl font-black text-red-500">{assessment.communicationAnalysis?.totalFillerCount}</p>
+                  </div>
+                </div>
+                <div className="p-5 bg-[#f5f0e8]/50 rounded-xl border border-[#1a1a1a]/5">
+                  <p className="text-xs text-[#6b6b6b] leading-relaxed font-medium italic">"{assessment.communicationAnalysis?.paceFeedback}"</p>
                 </div>
               </div>
-              <div className="h-48 relative">
+              <div className="h-56 relative bg-[#f5f0e8]/30 rounded-2xl border border-[#1a1a1a]/5 p-6">
                 <canvas ref={barChartRef}></canvas>
               </div>
             </div>
@@ -576,26 +598,30 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
 
           {/* 10. Proctoring Log */}
           {assessment.proctoringReport && (
-            <section className="card space-y-4">
-              <h3 className="text-lg font-bold flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-[#E24B4A]"></span> Proctoring Log
+            <section className="bg-white rounded-2xl p-10 border border-[#1a1a1a]/10 shadow-sm shadow-[#1a1a1a]/5 transition-all hover:shadow-md">
+              <h3 className="text-xl font-black mb-8 flex items-center gap-3">
+                <span className={`w-3 h-3 rounded-full ${(assessment.proctoringReport.totalViolations > 0) ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'bg-[#16a34a] shadow-[0_0_10px_rgba(22,163,74,0.4)]'}`}></span> 
+                Session Integrity Log
               </h3>
               {assessment.proctoringReport.totalViolations > 0 ? (
-                <div className="bg-white border rounded-xl p-5 shadow-sm">
-                  <ul className="space-y-3 mb-4">
+                <div className="space-y-6">
+                  <ul className="space-y-4">
                     {assessment.proctoringReport.violations?.map((v: any, i: number) => (
-                      <li key={i} className="flex gap-4 text-sm items-center">
-                        <span className="text-gray-500 font-mono w-12">{v.timestamp}</span>
-                        <span className="text-red-600 font-bold uppercase text-[10px] bg-red-50 px-2 py-0.5 rounded border border-red-100">{v.type}</span>
-                        <span className="text-gray-700">Focus lost for {v.durationSeconds} seconds</span>
+                      <li key={i} className="flex gap-6 text-sm items-center bg-[#f5f0e8]/50 p-4 rounded-xl border border-[#1a1a1a]/5">
+                        <span className="text-[#999] font-black font-mono text-xs w-16 uppercase tracking-widest">{v.timestamp}</span>
+                        <span className="text-red-500 font-black uppercase text-[10px] bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">{v.type}</span>
+                        <span className="text-[#1a1a1a] font-bold">Lost focus for {v.durationSeconds}s</span>
                       </li>
                     ))}
                   </ul>
-                  <p className="text-sm text-gray-600 border-t pt-3">{assessment.proctoringReport.proctoringNote}</p>
+                  <div className="p-5 bg-red-50 rounded-xl border border-red-100">
+                    <p className="text-sm text-red-800 font-medium leading-relaxed italic">"{assessment.proctoringReport.proctoringNote}"</p>
+                  </div>
                 </div>
               ) : (
-                <div className="bg-[#EAF3DE]/50 border border-[#639922]/20 px-4 py-3 rounded-lg text-sm text-[#27500A] font-medium flex items-center gap-2">
-                  <span>✓</span> Clean session — no violations detected.
+                <div className="bg-[#16a34a]/5 border border-[#16a34a]/10 p-6 rounded-2xl text-[13px] text-[#16a34a] font-black uppercase tracking-widest flex items-center gap-4">
+                  <div className="w-10 h-10 bg-[#16a34a] rounded-lg flex items-center justify-center text-white text-xl shadow-lg shadow-[#16a34a]/20">✓</div>
+                  Clean Session — Professional Integrity Maintained
                 </div>
               )}
             </section>
@@ -603,22 +629,26 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
 
           {/* 11. 7-Day Study Roadmap */}
           {assessment.studyRoadmap && assessment.studyRoadmap.length > 0 && (
-            <section className="card">
-              <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-[#BA7517]"></span> 7-Day Study Roadmap
-              </h3>
-              <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 before:to-transparent">
+            <section className="bg-white rounded-2xl p-10 border border-[#1a1a1a]/10 shadow-sm shadow-[#1a1a1a]/5 transition-all hover:shadow-md">
+              <div className="flex items-center gap-3 mb-10">
+                <span className="w-3 h-3 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.4)]"></span>
+                <h3 className="text-xl font-black text-[#1a1a1a] tracking-tight">Growth Roadmap</h3>
+              </div>
+              <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-px before:bg-gradient-to-b before:from-transparent before:via-[#1a1a1a]/10 before:to-transparent">
                 {assessment.studyRoadmap.map((item: any, i: number) => (
-                  <div key={i} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-[#BA7517] text-white font-bold text-sm shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                      {item.day}
+                  <div key={i} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#1a1a1a] text-white font-black text-xs shadow-xl shadow-[#1a1a1a]/20 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-transform group-hover:scale-110">
+                      D{item.day}
                     </div>
-                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-5 rounded-xl border shadow-sm">
-                      <h4 className="font-bold text-gray-900 mb-1">{item.topic}</h4>
-                      <p className="text-sm text-gray-500 italic mb-3">{item.reason}</p>
-                      <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 border border-gray-100">
-                        <p className="mb-2"><span className="font-semibold text-gray-900">Target:</span> {item.practiceTarget}</p>
-                        <p><span className="font-semibold text-gray-900">Resource:</span> <span className="text-blue-600 font-medium cursor-pointer hover:underline">{item.resource}</span></p>
+                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-3rem)] bg-[#f5f0e8]/30 p-6 rounded-2xl border border-[#1a1a1a]/5 transition-all group-hover:bg-white group-hover:shadow-md">
+                      <h4 className="font-black text-[#1a1a1a] mb-2 uppercase tracking-wide text-sm">{item.topic}</h4>
+                      <p className="text-xs text-[#6b6b6b] italic mb-4 font-medium leading-relaxed">"{item.reason}"</p>
+                      <div className="bg-white rounded-xl p-4 space-y-3 border border-[#1a1a1a]/5">
+                        <p className="text-xs leading-relaxed"><span className="font-black text-[#1a1a1a] uppercase tracking-widest text-[9px] mr-2">Objective:</span> <span className="text-[#6b6b6b] font-medium">{item.practiceTarget}</span></p>
+                        <div className="flex items-center gap-2 pt-2 border-t border-[#1a1a1a]/5">
+                          <span className="text-[9px] font-black text-[#16a34a] uppercase tracking-widest">Top Resource:</span>
+                          <span className="text-xs text-blue-600 font-bold hover:underline cursor-pointer">{item.resource}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -629,25 +659,27 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
 
           {/* 12. Salary Estimator */}
           {assessment.salaryEstimate && (
-            <section className="card p-6 border rounded-xl bg-[#111827] text-white shadow-lg">
-              <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-[#639922]"></span> Estimated Salary Range Based on Performance
+            <section className="bg-[#1a1a1a] rounded-2xl p-10 text-white shadow-xl relative overflow-hidden group transition-all hover:shadow-md">
+              <div className="absolute top-0 left-0 w-96 h-96 bg-[#16a34a]/10 blur-[120px] rounded-full -ml-48 -mt-48 transition-all group-hover:bg-[#16a34a]/20"></div>
+              <h3 className="text-xl font-black mb-2 flex items-center gap-3 relative z-10">
+                <span className="w-3 h-3 rounded-full bg-[#16a34a] shadow-[0_0_15px_rgba(22,163,74,0.6)]"></span>
+                Salary Benchmark Report
               </h3>
-              <p className="text-xs text-gray-400 mb-6 border-b border-gray-800 pb-4">{assessment.salaryEstimate.salaryNote}</p>
+              <p className="text-[11px] text-[#999] mb-8 font-mono-accent uppercase tracking-[0.2em] relative z-10 border-b border-white/5 pb-6">Based on your current technical depth and communication clarity</p>
               
-              <div className="space-y-4">
+              <div className="space-y-8 relative z-10">
                 {[
-                  { label: "Service Companies (TCS, Infosys, Wipro)", range: `${assessment.salaryEstimate.serviceCompanies?.min || 0} - ${assessment.salaryEstimate.serviceCompanies?.max || 0} ${assessment.salaryEstimate.serviceCompanies?.currency || 'LPA'}`, min: assessment.salaryEstimate.serviceCompanies?.min || 0, max: assessment.salaryEstimate.serviceCompanies?.max || 0, ceiling: 10 },
-                  { label: "Indian Product (Paytm, Swiggy, Zomato)", range: `${assessment.salaryEstimate.indianProduct?.min || 0} - ${assessment.salaryEstimate.indianProduct?.max || 0} ${assessment.salaryEstimate.indianProduct?.currency || 'LPA'}`, min: assessment.salaryEstimate.indianProduct?.min || 0, max: assessment.salaryEstimate.indianProduct?.max || 0, ceiling: 30 },
-                  { label: "FAANG / Top Product", range: `${assessment.salaryEstimate.faang?.min || 0} - ${assessment.salaryEstimate.faang?.max || 0} ${assessment.salaryEstimate.faang?.currency || 'LPA'}`, min: assessment.salaryEstimate.faang?.min || 0, max: assessment.salaryEstimate.faang?.max || 0, ceiling: 60 }
+                  { label: "Service Companies (TCS, Infosys, Wipro)", range: `${assessment.salaryEstimate.serviceCompanies?.min || 0} - ${assessment.salaryEstimate.serviceCompanies?.max || 0} ${assessment.salaryEstimate.serviceCompanies?.currency || 'LPA'}`, min: assessment.salaryEstimate.serviceCompanies?.min || 0, max: assessment.salaryEstimate.serviceCompanies?.max || 0, ceiling: 10, color: "from-[#16a34a] to-emerald-300" },
+                  { label: "Indian Product (Paytm, Swiggy, Zomato)", range: `${assessment.salaryEstimate.indianProduct?.min || 0} - ${assessment.salaryEstimate.indianProduct?.max || 0} ${assessment.salaryEstimate.indianProduct?.currency || 'LPA'}`, min: assessment.salaryEstimate.indianProduct?.min || 0, max: assessment.salaryEstimate.indianProduct?.max || 0, ceiling: 30, color: "from-blue-500 to-indigo-300" },
+                  { label: "FAANG / Tier-1 Product", range: `${assessment.salaryEstimate.faang?.min || 0} - ${assessment.salaryEstimate.faang?.max || 0} ${assessment.salaryEstimate.faang?.currency || 'LPA'}`, min: assessment.salaryEstimate.faang?.min || 0, max: assessment.salaryEstimate.faang?.max || 0, ceiling: 60, color: "from-purple-500 to-pink-300" }
                 ].map((tier, i) => (
-                  <div key={i}>
-                    <div className="flex justify-between items-center mb-1.5">
-                      <span className="text-sm font-medium text-gray-300">{tier.label}</span>
-                      <span className="font-mono font-bold text-[#EAF3DE]">{tier.range}</span>
+                  <div key={i} className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[11px] font-black uppercase tracking-widest text-[#999]">{tier.label}</span>
+                      <span className="font-mono font-black text-xl text-white">{tier.range}</span>
                     </div>
-                    <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-[#639922] to-[#EAF3DE] rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, ((tier.max || 1) / tier.ceiling) * 100)}%` }}></div>
+                    <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden border border-white/5 p-0.5">
+                      <div className={`h-full bg-gradient-to-r ${tier.color} rounded-full transition-all duration-1000 shadow-sm`} style={{ width: `${Math.min(100, ((tier.max || 1) / tier.ceiling) * 100)}%` }}></div>
                     </div>
                   </div>
                 ))}
@@ -655,11 +687,16 @@ export default function ReportClient({ sessionId, data, initialAssessment }: { s
 
               {/* Improvement Callout */}
               {assessment.areasForImprovement && assessment.areasForImprovement.length > 0 && (
-                <div className="mt-6 pt-4 border-t border-gray-800">
-                  <p className="text-xs text-amber-400 font-bold mb-1">💡 How to jump to the next tier:</p>
-                  <p className="text-sm text-gray-300">
-                    Improve <span className="text-white font-bold">{assessment.areasForImprovement.slice(0, 3).join(", ")}</span> to unlock higher salary ranges.
-                  </p>
+                <div className="mt-10 p-6 bg-white/5 rounded-xl border border-white/5 relative z-10 flex flex-col sm:flex-row items-center gap-4">
+                  <div className="w-10 h-10 bg-amber-400/20 rounded-lg flex items-center justify-center shrink-0">
+                    <span className="text-amber-400 text-lg">💡</span>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-amber-400 font-black uppercase tracking-widest mb-1">Upgrade Path</p>
+                    <p className="text-sm text-[#999] leading-relaxed">
+                      Improve <span className="text-white font-bold">{assessment.areasForImprovement.slice(0, 2).join(" & ")}</span> to unlock the next salary bracket.
+                    </p>
+                  </div>
                 </div>
               )}
             </section>
